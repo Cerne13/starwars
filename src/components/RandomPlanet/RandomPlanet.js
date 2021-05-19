@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
 import SwapiService from '../../services/SwapiService';
 import ErrorIndicator from '../ErrorIndicator/ErrorIndicator';
 import Spinner from '../Spinner/';
@@ -12,11 +14,20 @@ export default class RandomPlanet extends Component {
 		error: false,
 	};
 
+	static defaultProps = {
+		updateInterval: 10000,
+	};
+
+	static propTypes = {
+		updateInterval: PropTypes.number,
+	};
+
 	swapiService = new SwapiService();
 
 	componentDidMount() {
+		const { updateInterval } = this.props;
 		this.updatePlanet();
-		this.interval = setInterval(this.updatePlanet, 6000);
+		this.interval = setInterval(this.updatePlanet, updateInterval);
 	}
 
 	componentWillUnmount() {
@@ -53,7 +64,7 @@ export default class RandomPlanet extends Component {
 		const planetView = hasData ? <PlanetView planet={planet} /> : null;
 
 		return (
-			<div className="random-planet jumbotron rounded">
+			<div className='random-planet jumbotron rounded'>
 				{errorMessage}
 				{spinner}
 				{planetView}
@@ -68,23 +79,23 @@ const PlanetView = ({ planet }) => {
 	return (
 		<React.Fragment>
 			<img
-				className="planet-image"
+				className='planet-image'
 				src={`https://starwars-visualguide.com/assets/img/planets/${id}.jpg`}
 				alt={`Planet ${planetName}`}
 			/>
 			<div>
 				<h4>{planetName}</h4>
-				<ul className="list-group list-group-flush">
-					<li className="list-group-item">
-						<span className="term">Population</span>
+				<ul className='list-group list-group-flush'>
+					<li className='list-group-item'>
+						<span className='term'>Population</span>
 						<span>{population}</span>
 					</li>
-					<li className="list-group-item">
-						<span className="term">Rotation Period</span>
+					<li className='list-group-item'>
+						<span className='term'>Rotation Period</span>
 						<span>{rotationPeriod}</span>
 					</li>
-					<li className="list-group-item">
-						<span className="term">Diameter</span>
+					<li className='list-group-item'>
+						<span className='term'>Diameter</span>
 						<span>{diameter}</span>
 					</li>
 				</ul>

@@ -6,8 +6,8 @@ import ErrorButton from '../ErrorButton';
 
 const Record = ({ item, field, label }) => {
 	return (
-		<li className="list-group-item">
-			<span className="term">{label}</span>
+		<li className='list-group-item'>
+			<span className='term'>{label}</span>
 			<span>{item[field]}</span>
 		</li>
 	);
@@ -29,7 +29,11 @@ export default class ItemDetails extends Component {
 	}
 
 	componentDidUpdate(prevProps) {
-		if (this.props.itemId !== prevProps.itemId) {
+		if (
+			this.props.itemId !== prevProps.itemId ||
+			this.props.getData !== prevProps.getData ||
+			this.props.getImageURL !== prevProps.getImageURL
+		) {
 			this.updateItem();
 		}
 	}
@@ -68,7 +72,7 @@ export default class ItemDetails extends Component {
 		) : null;
 
 		return (
-			<div className="item-details card">
+			<div className='item-details card'>
 				{spinner}
 				{itemView}
 			</div>
@@ -81,11 +85,11 @@ const ShowItem = ({ item, image, props }) => {
 
 	return (
 		<>
-			<img className="item-image" src={image} alt=" " />
+			<img className='item-image' src={image} alt=' ' />
 
-			<div className="card-body">
+			<div className='card-body'>
 				<h4>{name}</h4>
-				<ul className="list-group list-group-flush">
+				<ul className='list-group list-group-flush'>
 					{React.Children.map(props.children, (child) => {
 						return React.cloneElement(child, { item });
 					})}

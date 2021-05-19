@@ -4,30 +4,44 @@ import './App.css';
 import Header from '../Header';
 import RandomPlanet from '../RandomPlanet';
 import ErrorIndicator from '../ErrorIndicator/';
-import PeoplePage from '../PeoplePage';
-
 import SwapiService from '../../services/SwapiService';
 import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
 import { SwapiServiceProvider } from '../SwapiServiceContext';
-import Row from '../Row';
-import ItemDetails, { Record } from '../ItemDetails';
-import ErrorButton from '../ErrorButton';
-
 import {
-	PersonList,
-	PlanetList,
-	ShipList,
-	PersonDetails,
-	PlanetDetails,
-	ShipDetails,
-} from '../swComponents';
+	PeoplePage,
+	PlanetPage,
+	ShipPage,
+	LoginPage,
+	SecretPage,
+} from '../pages';
+
+import DummySwapiService from '../../services/DummySwapiService';
+
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { ShipDetails } from '../swComponents';
 
 export default class App extends Component {
-	swapiService = new SwapiService();
-
 	state = {
-		showRandomPlanet: true,
 		hasError: false,
+		swapiService: new SwapiService(),
+		isLoggedIn: false,
+	};
+
+	onLogin = () => {
+		this.setState({ isLoggedIn: true });
+	};
+
+	onServiceChange = () => {
+		this.setState(({ swapiService }) => {
+			const Service =
+				swapiService instanceof SwapiService
+					? DummySwapiService
+					: SwapiService;
+
+			console.log(`switched to: ${Service.name}`);
+
+			return { swapiService: new Service() };
+		});
 	};
 
 	toggleRandomPlanet = () => {
@@ -43,54 +57,68 @@ export default class App extends Component {
 	}
 
 	render() {
+		const { isLoggedIn } = this.state;
+
 		if (this.state.hasError) {
 			return <ErrorIndicator />;
 		}
 
-		const planet = this.state.showRandomPlanet ? <RandomPlanet /> : null;
-
-		// return (
-		// 	<>
-		// 		<ErrorBoundary>
-		// 			<div className="stardb-app">
-		// 				<Header />
-
-		// 				{planet}
-
-		// 				<div className="row mb2 button-row">
-		// 					<button
-		// 						className="toggle-planet btn btn-warning btn-lg"
-		// 						onClick={this.toggleRandomPlanet}
-		// 					>
-		// 						Toggle Random Planet
-		// 					</button>
-		// 					<ErrorButton />
-		// 				</div>
-
-		// 				<ErrorBoundary>
-		// 					<Row left={personDetails} right={starhsipDetails} />
-		// 				</ErrorBoundary>
-
-		// 				{/* <PeoplePage /> */}
-		// 			</div>
-		// 		</ErrorBoundary>
-		// 	</>
-		// );
-
 		return (
 			<ErrorBoundary>
-				<SwapiServiceProvider value={this.swapiService}>
-					<div className="stardb-app">
-						<Header />
+				<SwapiServiceProvider value={this.state.swapiService}>
+					<Router>
+						<div className='stardb-app'>
+							<Header onServiceChange={this.onServiceChange} />
+							<RandomPlanet />
 
-						<PersonDetails itemId={11} />
-						<PlanetDetails itemId={11} />
-						<ShipDetails itemId={11} />
+							<Switch>
+								<Route
+									exact
+									path='/'
+									render={() => {
+										return <h2>Welcome to StarDb</h2>;
+									}}
+								/>
+								<Route
+									path='/people/:id?'
+									component={PeoplePage}
+								/>
+								<Route
+									path='/planets/'
+									component={PlanetPage}
+								/>
+								<Route
+									exact
+									path='/ships/'
+									component={ShipPage}
+								/>
+								<Route
+									path='/ships/:id'
+									render={({ match }) => {
+										const { id } = match.params;
+										return <ShipDetails itemId={id} />;
+									}}
+								/>
 
-						<PersonList onItemSelected={() => {}} />
-						<PlanetList onItemSelected={() => {}} />
-						<ShipList onItemSelected={() => {}} />
-					</div>
+								<Route
+									path='/login'
+									render={() => (
+										<LoginPage
+											isLoggedIn={isLoggedIn}
+											onLogin={this.onLogin}
+										/>
+									)}
+								/>
+								<Route
+									path='/secret'
+									render={() => (
+										<SecretPage isLoggedIn={isLoggedIn} />
+									)}
+								/>
+								<Route render={() => <h2>Page not found</h2>} />
+							</Switch>
+						</div>
+					</Router>
 				</SwapiServiceProvider>
 			</ErrorBoundary>
 		);
